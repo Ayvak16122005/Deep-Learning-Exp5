@@ -10,50 +10,87 @@ To develop a Recurrent Neural Network (RNN) model for predicting stock prices us
 
 **Neural Network Model**
 
-Include the neural network model diagram.
+<img width="631" height="304" alt="image" src="https://github.com/user-attachments/assets/dda92d13-6fbf-4638-bc5a-5c5e09d80b75" />
+
 
 **DESIGN STEPS**
+STEP 1: Data Loading and Preprocessing
 
-STEP 1:
+Load training and testing datasets using Pandas.
 
-Write your own steps
+Extract the ‘Open’ column for analysis and apply MinMaxScaler to normalize data between 0 and 1
 
-STEP 2:
+STEP 2: Training Data Preparation
 
-STEP 3:
+Create input sequences of 60 previous days to predict the next day’s price.
 
-STEP 4:
+Separate features (X_train) and targets (y_train) and reshape them into 3D format suitable for RNN input.
 
-STEP 5:
+STEP 3: Model Construction
 
-STEP 6:
+Build a Sequential RNN model with one SimpleRNN layer (40 units) and one Dense output layer (1 unit).
+STEP 4: Model Compilation and Training
+
+Compile the model using the Adam optimizer and Mean Squared Error (MSE) loss.
+
+Train the model for 25 epochs with a batch size of 64.
+
+STEP 5: Testing and Prediction
+
+Combine train and test data, apply scaling, and prepare test sequences.
+
+Predict stock prices using the trained model and convert them back to original scale using inverse transformation.
+
+STEP 6: Visualization
+
+Plot actual and predicted stock prices on a graph to visually compare performance and trend accuracy.
 
 **PROGRAM**
 
-**Name:**
+**Name:KAVYA T**
 
-**Register Number:**
+**Register Number:2305003004**
+```python
 
+import numpy as np, pandas as pd, matplotlib.pyplot as plt
+from sklearn.preprocessing import MinMaxScaler
+from keras import layers, Sequential
 
-  
-    # write your code here
+# Load and scale data
+train = pd.read_csv('trainset1.csv'); test = pd.read_csv('testset1.csv')
+sc = MinMaxScaler((0,1))
+train_scaled = sc.fit_transform(train.iloc[:,1:2])
 
+# Generate training data
+X_train = np.array([train_scaled[i-60:i,0] for i in range(60,len(train_scaled))])
+y_train = np.array([train_scaled[i,0] for i in range(60,len(train_scaled))])
+X_train = X_train.reshape(X_train.shape[0], X_train.shape[1], 1)
+
+# Build and train model
+model = Sequential([layers.SimpleRNN(40,input_shape=(60,1)), layers.Dense(1)])
+model.compile('adam','mse')
+model.fit(X_train,y_train,epochs=25,batch_size=64,verbose=0)
+
+# Prepare input and test data
+inputs = pd.concat((train['Open'], test['Open']), axis=0).values.reshape(-1,1)
+X_test = np.array([sc.transform(inputs)[i-60:i,0] for i in range(60,len(inputs))]).reshape(-1,60,1)
+
+# Predict and visualize
+pred = sc.inverse_transform(model.predict(X_test))
+plt.plot(inputs,color='yellow',label='Real Price')
+plt.plot(range(60,len(inputs)),pred,color='violet',label='Predicted')
+plt.title('Google Stock Price Prediction'); plt.xlabel('Time'); plt.ylabel('Price'); plt.legend(); plt.show()
+```
 
 
 **OUTPUT**
 
-Training Loss Over Epochs Plot
-
-Include your plot here
-
 **True Stock Price, Predicted Stock Price vs time**
 
-Include your plot here
+<img width="659" height="481" alt="image" src="https://github.com/user-attachments/assets/e6a84ba8-c970-4f39-9b0f-fb66d84ce2a1" />
 
-**Predictions**
 
-Include the predictions on test data
 
 **RESULT**
 
-Include your result here
+Thus the stock price is predicted using Recurrent Neural Networks successfully.
